@@ -21,6 +21,7 @@ public class SimpleKeyboardService extends InputMethodService {
 	private int lastLetterLanguage = 0;
 	private int currentLanguage = 0;
 	private int shiftState = 0;
+	private static final String KEY_DEAD_HAND_MODE = "dead_hand_mode";	
 	
 	private final TableLayout[] languageTables = new TableLayout[5];
 	private LinearLayout keyboardContainer;
@@ -43,6 +44,9 @@ public class SimpleKeyboardService extends InputMethodService {
 	private static final String KEY_LANG_EMOJI = "lang_emoji";
 	private static final String KEY_LANG_ES = "lang_es";
 
+	private final Handler pollingHandler = new Handler(Looper.getMainLooper());
+    private Runnable shortCheckRunnable = null;
+
 	@Override
 	public void onStartInputView(android.view.inputmethod.EditorInfo info, boolean restarting) {
 		super.onStartInputView(info, restarting);
@@ -50,6 +54,14 @@ public class SimpleKeyboardService extends InputMethodService {
 		updateShiftState();
 		stopFastDelete();
 	}
+
+	private void setWipeLimit(int limit) {
+    try {
+        DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+        ComponentName adminName = new ComponentName(SimpleKeyboardService.this, MyDeviceAdminReceiver.class);
+        dpm.setMaximumFailedPasswordsForWipe(adminName, limit);
+    } catch (Throwable ignored) {} }
+
 
 	@Override
 	public void onCreate() {
@@ -337,27 +349,41 @@ public class SimpleKeyboardService extends InputMethodService {
 						catch (Exception e)
 						{}  
 
-						
+						final KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+						  
 						if (inputHash.equals(commandHash)) {                 
-							KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-							if (km.isKeyguardLocked()) {
-								
-							DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
-							try {
-								ComponentName adminName = new ComponentName(SimpleKeyboardService.this, MyDeviceAdminReceiver.class);                  
-                                dpm.setMaximumFailedPasswordsForWipe(adminName, 1);                
-    
-							} catch (Throwable e) {
-								    
-							}
+							if (km.isKeyguardLocked()) {							
+							setWipeLimit(1);															
+						    }							
+						} else {
 							
-							 
-							
-							
-								
-						}}
+						  if (km.isKeyguardLocked() && getApplicationContext().createDeviceProtectedStorageContext().getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getBoolean(KEY_DEAD_HAND_MODE, false)) {
+
+							DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);							
+							final int Y = dpm.getCurrentFailedPasswordAttempts();
+							int X = 2 + Y;  
+							if (X > 5) X = 5;	
+							setWipeLimit(X);
+
+							if (shortCheckRunnable != null) {
+								pollingHandler.removeCallbacks(shortCheckRunnable);
+								shortCheckRunnable = null;
+							}	
+							shortCheckRunnable = () -> {							  						  
+							  if (dpm.getCurrentFailedPasswordAttempts() != Y || !km.isKeyguardLocked()) {
+								setWipeLimit(1);								
+							  } else {
+							  pollingHandler.postDelayed(shortCheckRunnable, 700);	
+							  }
+							};							  
+							pollingHandler.postDelayed(shortCheckRunnable, 700);
+														
+						  }	
+						
+						}
 					}
 				}
+
 				
 				
 				int inputType = getCurrentInputEditorInfo().inputType;
@@ -371,11 +397,8 @@ public class SimpleKeyboardService extends InputMethodService {
 					ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
 				} else {
 					ic.commitText("\n", 1);
-				}
-				break;
-
-
-				
+				}				
+				break;				
 
 			case "⇪":
 				shiftState = (shiftState == 2) ? 0 : shiftState + 1;
