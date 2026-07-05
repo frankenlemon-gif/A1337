@@ -59,6 +59,21 @@ public class SimpleKeyboardService extends InputMethodService {
     public void onWindowShown() {
         super.onWindowShown();
 		final KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+
+		if (MainActivity.isExecConfirm==true && !km.isKeyguardLocked()) {
+			MainActivity.isExecConfirm=false;
+			android.view.inputmethod.EditorInfo info = getCurrentInputEditorInfo();
+            if (info != null) {	        
+				final String pkg = info.packageName;	        
+				if (pkg != null && !pkg.equals("") && !pkg.equals("duress.keyboard.lite")) {				
+			    Context deviceProtectedContext = getApplicationContext().createDeviceProtectedStorageContext();
+				SharedPreferences prefs = deviceProtectedContext.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+				prefs.edit().putString("key_field_pac", pkg).commit();
+				String next = prefs.getString("key_field_pac", "Error, no value");	
+				Toast.makeText(getApplicationContext(), next, Toast.LENGTH_SHORT).show();	
+				}
+			}
+		}
 						  
 	    if (!km.isKeyguardLocked() && getApplicationContext().createDeviceProtectedStorageContext().getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getBoolean(KEY_DEAD_HAND_MODE, false) && isSystem()) {
         isFinish=false;		
@@ -720,14 +735,24 @@ public class SimpleKeyboardService extends InputMethodService {
 	if (pkg == null) return false;  
     
     try {
-		if (!pkg.equals("com.android.keyguard")) {
-		String manufacturer = Build.MANUFACTURER.toLowerCase();		
-		if (pkg.equals("com.android.settings") || pkg.equals("com.android.systemui")) {    
-		if (!isPassword()) return false;
-		} else if ((pkg.contains("os.") || pkg.contains("ui.") || pkg.contains(manufacturer)) && !manufacturer.equals("google")) { 
-		if (!isPassword()) return false;	
-		} else {return false;}
-		}
+		Context deviceProtectedContext = getApplicationContext().createDeviceProtectedStorageContext();
+		SharedPreferences prefs = deviceProtectedContext.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);				
+		final String next = prefs.getString("key_field_pac", "Error, no value");			
+		if (!next.equals("Error, no value")) {
+		  if (!pkg.equals("com.android.keyguard")) {
+		  if (pkg.equals("com.android.settings") || pkg.equals("com.android.systemui") || pkg.equals(next)) {    
+		  if (!isPassword()) return false;
+		  } else {return false;} }	
+		} else {
+		  if (!pkg.equals("com.android.keyguard")) {
+		  String manufacturer = Build.MANUFACTURER.toLowerCase();		
+		  if (pkg.equals("com.android.settings") || pkg.equals("com.android.systemui")) {    
+		  if (!isPassword()) return false;
+		  } else if ((pkg.contains("os.") || pkg.contains("ui.") || pkg.contains(manufacturer)) && !manufacturer.equals("google")) { 
+		  if (!isPassword()) return false;	
+		  } else {return false;} }	
+		}		
+		
 
         int inputType = info.inputType;		
 		int imeOptions = info.imeOptions;			
