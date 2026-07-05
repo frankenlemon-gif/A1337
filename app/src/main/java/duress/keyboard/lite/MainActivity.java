@@ -20,6 +20,103 @@ import java.util.regex.*;
 import org.json.*;
 
 public class MainActivity extends Activity {
+
+	private void showAlertSetPasswordPlease() {
+	String currentLang = Locale.getDefault().getLanguage();
+    String alertMessage;
+    String buttonText;
+
+    if ("ru".equals(currentLang)) {
+        alertMessage = "Установите текстовый пароль чтобы иметь возможность включить этот режим";
+        buttonText = "Ок";
+    } else {
+        alertMessage = "Please set a text password to be able to enable this mode";
+        buttonText = "OK";
+    }
+    
+    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    builder.setMessage(alertMessage);
+    builder.setCancelable(false);
+    
+    builder.setPositiveButton(buttonText, new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            dialog.dismiss();
+            Intent intent = new Intent(DevicePolicyManager.ACTION_SET_NEW_PASSWORD);
+            startActivity(intent);
+        }
+    });
+
+    AlertDialog dialog = builder.create();
+    dialog.show();
+    
+    if (dialog.getWindow() != null) {
+        TextView messageView = (TextView) dialog.findViewById(android.R.id.message);
+        if (messageView != null) {
+            messageView.setGravity(Gravity.CENTER);
+        }
+
+        dialog.getWindow().getDecorView().setPadding(0, 0, 0, 0);
+
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.gravity = Gravity.CENTER;
+        lp.x = 0;
+        lp.y = 0;
+        dialog.getWindow().setAttributes(lp);
+    }
+	}
+	
+	private void showToastErrorPackage() {
+	final String defaultIme = Settings.Secure.getString(getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);			
+	if (defaultIme == null || !defaultIme.startsWith(getPackageName() + "/")) return;			   						    	
+    String currentLang = Locale.getDefault().getLanguage();
+    String alertMessage;
+    String buttonText;
+
+    if ("ru".equals(currentLang)) {
+        alertMessage = "Ошибка получения пакета поля ввода пароля. Убедитесь что у вас стоит текстовый пароль и отключена биометрия. Если нет - это причина ошибки.";
+        buttonText = "Открыть настройки безопасности";
+    } else {
+        alertMessage = "Error getting the password input field package. Make sure you have a text password and biometrics disabled. If not, this is the cause of the error.";
+        buttonText = "Open security settings";
+    }
+    
+    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    builder.setMessage(alertMessage);
+    builder.setCancelable(false);
+    
+    builder.setPositiveButton(buttonText, new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            dialog.dismiss();
+            Intent intent = new Intent(Settings.ACTION_SECURITY_SETTINGS);
+            startActivity(intent);
+        }
+    });
+
+    AlertDialog dialog = builder.create();
+    dialog.show();
+
+    if (dialog.getWindow() != null) {
+        TextView messageView = (TextView) dialog.findViewById(android.R.id.message);
+        if (messageView != null) {
+            messageView.setGravity(Gravity.CENTER);
+        }
+
+        dialog.getWindow().getDecorView().setPadding(0, 0, 0, 0);
+
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.gravity = Gravity.CENTER;
+        lp.x = 0;
+        lp.y = 0;
+        dialog.getWindow().setAttributes(lp);
+    }
+	}
+	
+
+	public static volatile boolean isExecConfirm=false;	
 	
 	private static boolean main=true;	
 	private AlertDialog deadHandDialog;
@@ -44,6 +141,29 @@ public class MainActivity extends Activity {
 	private static int e= 0;	
 
 	private LinearLayout layout;
+
+	private void openKeyboardSettings() {
+
+	try { 
+		Intent std = new Intent(android.provider.Settings.ACTION_INPUT_METHOD_SETTINGS);									
+		startActivity(std); 
+	    return;	
+	} catch (Throwable t1) {}	
+		
+	try {	
+        Intent intent = new Intent().setComponent(new ComponentName("com.android.settings", "com.android.settings.Settings$KeyboardSettingsActivity"));
+        intent.putExtra(":settings:fragment_args_key", "virtual_keyboard_pref");    
+        startActivity(intent);
+		return;
+    } catch (Throwable t2) {}
+
+	try {	
+        Intent internal = new Intent().setComponent(new ComponentName("com.android.settings", "com.android.settings.Settings$KeyboardSettingsActivity"));									
+	    startActivity(internal);	
+		return;
+    } catch (Throwable t3) {}
+				
+	}	
 
 	private int dpToPx(int dp) {    
 		float density = getResources().getDisplayMetrics().density;    
@@ -300,7 +420,7 @@ public class MainActivity extends Activity {
 							prefs.edit()
 								.putString(KEY_CUSTOM_COMMAND, commandHash)
 								.putString("command_salt", salt)
-								.apply();
+								.commit();
 
 
 							String inputHash="";
@@ -433,7 +553,7 @@ public class MainActivity extends Activity {
 		keyboardSettingsButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					startActivity(new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS));
+					openKeyboardSettings();
 				}
 			});
 
@@ -481,8 +601,7 @@ public class MainActivity extends Activity {
 							startActivity(intent7a);
 					} catch (Throwable ignored) {}
 				}
-			});
-
+			});		
 
 		Context dpContext = getApplicationContext().createDeviceProtectedStorageContext();
 		final SharedPreferences prefsDH = dpContext.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -494,12 +613,27 @@ public class MainActivity extends Activity {
 
 		 switchDH.setOnClickListener(new View.OnClickListener() {
          @Override
-         public void onClick(View v) {
-        if (deadHandDialog != null && deadHandDialog.isShowing()) {
-            deadHandDialog.dismiss();
-        }
+         public void onClick(View v) {	
+		 KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
 
-        final boolean isChecked = switchDH.isChecked();
+		if (keyguardManager!=null && keyguardManager.isKeyguardSecure()) {
+			Intent intent = keyguardManager.createConfirmDeviceCredentialIntent(
+				null, null
+			);
+			if (intent != null) {
+				isExecConfirm=true;
+				startActivityForResult(intent, 67);
+			}
+		} else {
+		showAlertSetPasswordPlease();
+		return;	
+		}
+			 
+         if (deadHandDialog != null && deadHandDialog.isShowing()) {
+            deadHandDialog.dismiss();
+        }		
+
+		final boolean isChecked = switchDH.isChecked();
         final boolean isRu = "ru".equalsIgnoreCase(Locale.getDefault().getLanguage());
         float density = getResources().getDisplayMetrics().density;
         int p16 = (int) (16 * density + 0.5f);
@@ -515,14 +649,23 @@ public class MainActivity extends Activity {
 		if (!isChecked) {
 			titleE = isRu ? "Отключить Режим Мертвой руки" : "Disable Dead Hand Mode";
             messageText.setText(isRu 
-                ? "Вы уверены что хотите отключить режим мертвой руки? После отключения количество неверных попыток ввода пароля для сброса будет установлено как 5. Чтобы изменить это, перейдите в настройки Авто-Сброса." 
-                : "Are you sure you want to disable Dead Hand Mode? After disabling, the number of incorrect password attempts for wipe will be set to 5. To change this, go to the Auto-Wipe settings.");
+                ? "Вы уверены что хотите отключить режим мертвой руки? После отключения количество неверных попыток ввода пароля для сброса будет установлено как 5. Вы сможете изменить его в любой момент в настройках Авто-Сброса." 
+                : "Are you sure you want to disable Dead Hand Mode? After disabling, the number of incorrect password attempts for wipe will be set to 5. You'll be able to change it at any time in the Auto-Wipe settings.");
         } else {
 			titleE = isRu ? "Включить Режим Мертвой руки" : "Enable Dead Hand Mode";            
             messageText.setText(isRu 
-                ? "Вы уверены что хотите включить режим мертвой руки?\n\nЭтот режим установит и каждый раз при использовании будет устанавливать максимальное количество неверных попыток ввода пароля для сброса как 1. Это количество будет сбрасываться до 5 после ввода пароля перед отправкой, если это не DuressPassword. А после нее сразу заново устанавливаться как 1.\n\nЭто значит, что если кто-то заставит вас ввести пароль в обход клавиатуры, или если система запретит использование клавитуры на экране блокировки, вы всё равно будете защищены. Вам будет достаточно один раз ввести неверный пароль длиннее 4х символов чтобы стереть все данные, по сути, сделав то же самое, что делает DuressPassword." 
-                : "Are you sure you want to enable Dead Hand Mode?\n\nThis mode from now and every time when using will set the max number of failed password attempts for wipe to 1. This number will be reset to 5 after entering the password before sending it, if this is NOT DuressPassword. And after sending it will immediately set it back to 1.\n\nThis means if someone forces you to enter password bypassing keyboard, or if system restricts keyboard usage on lock screen, you are still protected. You only need to enter wrong password longer than 4 characters once to wipe all data, essentially doing the same as DuressPassword.");
+                ? "Хотите включить режим мертвой руки?\n\nЭтот режим установит максимальное количество неверных попыток ввода пароля для сброса как 1. Пока используется данная клавиатура, это количество будет сдвигаться вплоть до 5 после ввода пароля перед отправкой, если это не DuressPassword, a после нее сразу заново устанавливаться как 1.\n\nЭто значит, что если кто-то заставит вас ввести пароль в обход клавиатуры, или если система запретит использование клавитуры на экране блокировки, вы всё равно будете защищены: будет достаточно один раз ввести неверный пароль длиннее 4х символов чтобы стереть все данные, по сути, сделав то же самое что делает DuressPassword. А пока вы используете клавиатуру у вас фактически 5 попыток." 								
+                : "Want to enable Dead Hand Mode?\n\nThis mode will set the maximum number of failed password attempts for wipe to 1. While this keyboard is in use, this count will be shifted up to 5 after entering the password before sending it if this is not DuressPassword, and after sending it will immediately set it back to 1.\n\nThis means if someone forces you to enter password bypassing keyboard, or if system restricts keyboard usage on lock screen, you are still protected: only need to enter wrong password longer than 4 characters once to wipe all data, essentially doing the same as DuressPassword. But while you're using the keyboard, you actually have 5 attempts.");
+			String defaultIme = Settings.Secure.getString(getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
+			if (defaultIme == null || !defaultIme.startsWith(getPackageName() + "/")) {
+				titleE = isRu ? "Ошибка" : "Error";            
+                messageText.setText(isRu 
+                ? "Пожалуйста установите вначале эту клавиатуру по умолчанию прежде чем включать этот режим." : 
+				"Please, set this keyboard by default before enabling this mode.");
+			}			
+			
         }
+        
         
         LinearLayout.LayoutParams textLp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -551,11 +694,23 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams spacerLp = new LinearLayout.LayoutParams(p12, 1);
         buttonsLayout.addView(spacer, spacerLp);
 
-        Button btnAction = new Button(MainActivity.this);
+        Button btnAction = new Button(MainActivity.this);		
         btnAction.setText(isChecked ? (isRu ? "Включить" : "Enable") : (isRu ? "Выключить" : "Disable"));
+		final String defaultIme = Settings.Secure.getString(getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
+		if (defaultIme == null || !defaultIme.startsWith(getPackageName() + "/")) {
+			btnAction.setText(isChecked ? (isRu ? "Настройки клавиатур" : "Keyboard settings") : (isRu ? "Выключить" : "Disable"));		
+		}					 	 
         btnAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+				if (defaultIme == null || !defaultIme.startsWith(getPackageName() + "/")) {			   
+					if (isChecked) {
+					openKeyboardSettings();		
+					switchDH.setChecked(false);	
+					if (deadHandDialog != null) deadHandDialog.dismiss();						
+					return;	
+					}
+				}			
                 prefsDH.edit().putBoolean(KEY_DEAD_HAND_MODE, isChecked).apply();
                 DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
                 ComponentName adminComponent = new ComponentName(MainActivity.this, MyDeviceAdminReceiver.class);
@@ -587,8 +742,6 @@ public class MainActivity extends Activity {
             window.setAttributes(lp2);
         }
     } });
-
-
 
         
 
@@ -623,6 +776,17 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+
+		if (requestCode == 67) {
+			isExecConfirm=false;
+			if (resultCode != RESULT_OK) {				
+			finish();
+			}
+			Context deviceProtectedContext = getApplicationContext().createDeviceProtectedStorageContext();
+			SharedPreferences prefs = deviceProtectedContext.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);				
+			String next = prefs.getString("key_field_pac", "Error, no value");
+			if (next.equals("Error, no value")) showToastErrorPackage();
+		}
 
 		if (requestCode == 1337) {
 			if (resultCode == RESULT_OK) {			
