@@ -2,6 +2,6 @@ Keyboard with Duress Password feature.
 
 This keyboard is private, local and doesn't collect your input.
 
-Duress Password feature — the ability to wipe phone data by entering a special code right on the lock screen. This feature is available in phones where third-party keyboards can work on the lock screen. 
+Duress Password feature — the ability to wipe phone data by entering a special code right on the lock screen. This feature is available in phones where third-party keyboards can work on the lock screen, which means all Android phones except some Chinese ROMs.
 
-This app is a simplified version of DuressKeyboard app. This app has higher target SDK, but fewer features.
+This app is a simplified version of DuressKeyboard app, this version has higher target SDK, which means easier installation, but fewer features.
