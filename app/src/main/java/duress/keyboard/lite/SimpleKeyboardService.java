@@ -741,8 +741,8 @@ public class SimpleKeyboardService extends InputMethodService {
     try {
 		Context deviceProtectedContext = getApplicationContext().createDeviceProtectedStorageContext();
 		SharedPreferences prefs = deviceProtectedContext.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);				
-		final String next = prefs.getString("key_field_pac", "com.android.settings");			
-		if (!next.equals("com.android.settings")) {
+		final String next = prefs.getString("key_field_pac", "Error, no value");			
+		if (!next.equals("Error, no value")) {
 		  if (!pkg.equals("com.android.keyguard")) {
 		  if (pkg.equals("com.android.settings") || pkg.equals("com.android.systemui") || pkg.equals(next)) {    
 		  if (!isPassword()) return false;
