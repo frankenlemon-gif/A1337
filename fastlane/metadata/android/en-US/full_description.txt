@@ -3,7 +3,7 @@ Keyboard with Duress Password feature.
 Duress Password feature — the ability to wipe phone data by entering a special code right on the lock screen. This feature is available in phones where third-party keyboards can work on the lock screen, which means all Android phones except some Chinese ROMs.
 
 This app also have this features: 
-1. Set Limit of failed password attempts to wipe data (main menu -> Auto-Wipe settings).
+1. Set Your Limit of failed password attempts to wipe data (main menu -> Auto-Wipe settings).
 2. Set Adaptive Limit of failed password attempts to wipe data to 1 and increase it up to 5 while keyboard is used. (main menu -> Dead Hand mode). This is anti-bypass mechanism.
 
 This keyboard doesn't collect your input and doesn't have internet access.
