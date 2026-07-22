@@ -4,7 +4,7 @@ Duress Password — a data reset code configurable in this app you enter via thi
 
 This feature is available in phones where third-party keyboards can work on the lock screen, which means all Android phones except some Chinese ROMs.
 
-This app also have these features: 
+This app also has these features: 
 1. Set Your Limit of failed password attempts to wipe data (main menu -> Auto-Wipe settings).
 2. Set Base Limit of failed password attempts to wipe data to 1 and increase it up to 5 while keyboard is used — to wipe data when attacker bypasses keyboard to bypass DuressPassword and do not wipe when you use it. (main menu -> Dead Hand mode).
 
