@@ -6,4 +6,4 @@ Supported only on non-Chinese phones where it can work in password input fields.
 
 This keyboard doesn't collect your input and doesn't have internet access.
 
-This app is a simplified version of DuressKeyboard app, it has higher target SDK, which means easier installation, but fewer features.
+This app is a simplified version of DuressKeyboard app, it has higher target SDK, and it easier to install, but fewer features.
