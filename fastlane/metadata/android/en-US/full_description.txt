@@ -10,4 +10,4 @@ This app also has these features:
 
 This keyboard doesn't collect your input and doesn't have internet access.
 
-This app is a simplified version of DuressKeyboard app, and it has higher target SDK, which means easier installation, but fewer features.
+This app is a simplified version of DuressKeyboard app, it has higher target SDK, which means easier installation, but fewer features.
