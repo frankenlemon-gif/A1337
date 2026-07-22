@@ -6,7 +6,7 @@ This feature is available in phones where third-party keyboards can work on the 
 
 This app also has these features: 
 1. Set Your Limit of failed password attempts to wipe data (main menu -> Auto-Wipe settings).
-2. Set Base Limit of failed password attempts to wipe data to 1 and increase it up to 5 while the keyboard is used — to wipe data on an incorrect attempt when an attacker bypasses the keyboard to bypass DuressPassword, and not wipe when you use it. (main menu -> Dead Hand mode).
+2. Set Base Limit of failed password attempts to wipe data to 1 and increase it up to 5 while the keyboard is used — to wipe data on any incorrect password entry containing more than 4 characters when an attacker bypasses the keyboard to bypass DuressPassword, and not wipe when you use it. (main menu -> Dead Hand mode).
 
 This keyboard doesn't collect your input and doesn't have internet access.
 
