@@ -1,8 +1,6 @@
 Keyboard with Duress Password feature.
 
-Duress Password — a data reset code configurable in this app you enter via this keyboard in the password input field on the lock screen and send by pressing the Enter arrow (⏎) when someone forces you to unlock the phone.
-
-This feature is available in phones where third-party keyboards can work on the lock screen, which means all Android phones except some Chinese ROMs.
+Duress Password — a data reset code configurable in this app you enter via this keyboard in the password input field on the lock screen and send by pressing the Enter arrow (⏎) when someone forces you to unlock the phone. This feature is available in phones where third-party keyboards can work on the lock screen, which means all Android phones except some Chinese ROMs.
 
 This keyboard doesn't collect your input and doesn't have internet access.
 
