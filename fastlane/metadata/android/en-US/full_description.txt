@@ -1,3 +1,3 @@
 Keyboard with Duress Password feature, without internet access and data collection; simplified version of DuressKeyboard with more limited functionality but easier installation.
 
-Duress Password — a data reset code configurable in this app that you enter via this keyboard in the password input field on the lock screen and send by pressing the Enter arrow (⏎) when someone forces you to unlock the phone. Supported only on non-Chinese phones where custom keyboards can be performed in password input fields.
+Duress Password — a data reset code configurable in this app that you enter via this keyboard in the password input field on the lock screen and send by pressing the Enter arrow (⏎) when someone forces you to unlock the phone. Supported only on non-Chinese phones where custom keyboards can work in password input fields.
