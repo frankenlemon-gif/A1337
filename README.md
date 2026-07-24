@@ -8,6 +8,6 @@ For this feature to work, you must set this keyboard as default and your phone m
 
 This app is a simplified version of DuressKeyboard with reduced functionality, but improved new Android compatibility.
 
-Download on Github: https://github.com/pofesk0/DuressKeyboardLite/releases/latest
+Download on Github: https://github.com/pofesk0/DuressKeyboardLite/releases/latest/  
 Download on F-droid:
 https://f-droid.org/packages/duress.keyboard.lite/
