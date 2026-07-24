@@ -6,4 +6,4 @@ Duress Password — a phone data reset code, configurable in this app, that you 
 
 For this feature to work, you must set this keyboard as default and your phone must not be Chinese/Realme/Oppo in order to support its use in password input fields.
 
-This app is a simplified version of DuressKeyboard with reduced functionality, but improved new Android compatibility.
+This app is a simplified version of DuressKeyboard with reduced functionality, but improved compatibility for newer Android versions.
