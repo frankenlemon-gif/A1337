@@ -1,3 +1,5 @@
+#DuressKeyboardLite
+
 Safe and fast keyboard with the DuressPassword feature.
 
 Duress Password — a phone data reset code, configurable in this app, that you enter via this keyboard instead of your ordinary password on the lock screen and send by tapping the Enter arrow (⏎) if you unlock the phone against your will.
