@@ -1,6 +1,6 @@
 # DuressKeyboardLite
 
-Safe and fast keyboard with the DuressPassword feature supported on phones where custom keyboards can work in password input fields.
+Safe and fast keyboard with the DuressPassword feature.
 
 Duress Password — a phone data reset code configurable in this app. Enter it via this keyboard instead of a lock screen password and press Enter (⏎) if unlocking under coercion.
 
