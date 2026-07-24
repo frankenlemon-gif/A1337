@@ -1,4 +1,4 @@
-#DuressKeyboardLite
+# DuressKeyboardLite
 
 Safe and fast keyboard with the DuressPassword feature.
 
